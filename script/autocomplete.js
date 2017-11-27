@@ -99,8 +99,6 @@ app.directive('autocomplete', function() {
 
     }],
     link: function(scope, element, attrs){
-        console.log(scope.noAutoSort);
-
       setTimeout(function() {
         scope.initLock = false;
         scope.$apply();
@@ -118,8 +116,6 @@ app.directive('autocomplete', function() {
       };
 
       for (var a in attrs) {
-          console.log('attrs: ', attrs);
-
         attr = a.replace('attr', '').toLowerCase();
         // add attribute overriding defaults
         // and preventing duplication
