@@ -1,6 +1,39 @@
 allmighty-autocomplete
 ======================
 
+
+
+## 说明
+因为项目中使用到所以做了简单的修改：
+* 支持对象类型的数组，可使用property=""的方式指定下拉列表显示的属性内容
+* 样式修改，使用时，可在页面css样式中配合如下样式进行使用：
+```
+.autocomplete {
+    padding: 0;
+  position: relative; }
+
+.autocomplete li {
+    list-style: none; }
+
+.autocomplete > input {
+    padding: 0 5px; }
+
+.autocomplete li:hover {
+    background-color: #1377D5; }
+
+.autocomplete ul {
+    position: absolute;
+  padding-left: 0;
+  left: 0;
+  width: 100%;
+  border-left: 1px solid #D3DCDF;
+  border-right: 1px solid #D3DCDF;
+  border-bottom: 1px solid #D3DCDF;
+  z-index: 1;
+  background-color: #F7F7F7; }
+```
+### ============== 华丽的分割线 （以下为原始内容） ==================
+
 Simple to use autocomplete directive in a module for AngularJS!
 Supports arrow keys to traverse suggestions as well as mouse input.
 You can load the suggestions from a remote REST API, it also supports promises.

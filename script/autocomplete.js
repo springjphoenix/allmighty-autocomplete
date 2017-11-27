@@ -13,7 +13,8 @@ app.directive('autocomplete', function() {
       onType: '=onType',
       onSelect: '=onSelect',
       autocompleteRequired: '=',
-      noAutoSort: '=noAutoSort'
+      noAutoSort: '=noAutoSort',
+      property: '=property'
     },
     controller: ['$scope', function($scope){
       // the index of the suggestions that's currently selected
@@ -98,7 +99,7 @@ app.directive('autocomplete', function() {
 
     }],
     link: function(scope, element, attrs){
-        console.log(scope.noAutoSort)
+        console.log(scope.noAutoSort);
 
       setTimeout(function() {
         scope.initLock = false;
@@ -117,6 +118,8 @@ app.directive('autocomplete', function() {
       };
 
       for (var a in attrs) {
+          console.log('attrs: ', attrs);
+
         attr = a.replace('attr', '').toLowerCase();
         // add attribute overriding defaults
         // and preventing duplication
@@ -243,17 +246,19 @@ app.directive('autocomplete', function() {
       });
     },
     template: '\
-        <div class="autocomplete {{ attrs.class }}" id="{{ attrs.id }}">\
+        <div class="autocomplete {{ attrs.class }} form-control" id="{{ attrs.id }}" style="width: 40%;">\
           <input\
             type="text"\
             ng-model="searchParam"\
             placeholder="{{ attrs.placeholder }}"\
             class="{{ attrs.inputclass }}"\
+            style="width: 100%; height: 100%; border: none;" \
             tabindex="{{ attrs.tabindex }}"\
             id="{{ attrs.inputid }}"\
             name="{{ attrs.name }}"\
             ng-required="{{ autocompleteRequired }}" />\
-          <ul ng-if="!noAutoSort" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
+            <div style="height: 100%; width: 100%;">\
+          <ul ng-if="!noAutoSort && !property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
             <li\
               suggestion\
               ng-repeat="suggestion in suggestions | filter:searchFilter | orderBy:\'toString()\' track by $index"\
@@ -263,7 +268,7 @@ app.directive('autocomplete', function() {
               ng-click="select(suggestion)"\
               ng-bind-html="suggestion | highlight:searchParam"></li>\
           </ul>\
-          <ul ng-if="noAutoSort" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
+          <ul ng-if="noAutoSort  && !property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
             <li\
               suggestion\
               ng-repeat="suggestion in suggestions | filter:searchFilter track by $index"\
@@ -273,6 +278,27 @@ app.directive('autocomplete', function() {
               ng-click="select(suggestion)"\
               ng-bind-html="suggestion | highlight:searchParam"></li>\
           </ul>\
+          <ul ng-if="!noAutoSort && property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
+            <li\
+              suggestion\
+              ng-repeat="suggestion in suggestions | filter:searchFilter | orderBy:\'toString()\' track by $index"\
+              index="{{ $index }}"\
+              val="{{ suggestion[property] }}"\
+              ng-class="{ active: ($index === selectedIndex) }"\
+              ng-click="select(suggestion[property])"\
+              ng-bind-html="suggestion[property] | highlight:searchParam"></li>\
+          </ul>\
+          <ul ng-if="noAutoSort  && !property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
+            <li\
+              suggestion\
+              ng-repeat="suggestion in suggestions | filter:searchFilter track by $index"\
+              index="{{ $index }}"\
+              val="{{ suggestion[property] }}"\
+              ng-class="{ active: ($index === selectedIndex) }"\
+              ng-click="select(suggestion[property])"\
+              ng-bind-html="suggestion[property] | highlight:searchParam"></li>\
+          </ul>\
+          </div>\
         </div>'
   };
 });
