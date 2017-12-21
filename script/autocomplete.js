@@ -22,6 +22,8 @@ app.directive('autocomplete', function() {
 
       $scope.initLock = true;
 
+      $scope.clonedSuggestions = [];
+
       // set new index
       $scope.setIndex = function(i){
         $scope.selectedIndex = parseInt(i);
@@ -86,7 +88,7 @@ app.directive('autocomplete', function() {
       $scope.select = function(suggestion){
         if(suggestion){
           $scope.searchParam = suggestion;
-          $scope.searchFilter = suggestion;
+          $scope.searchFilter = suggestion.optionValue;
           if($scope.onSelect)
             $scope.onSelect(suggestion);
         }
@@ -124,14 +126,27 @@ app.directive('autocomplete', function() {
         }
       }
 
+      function deepCopy(o) {
+          var output, v, key;
+          output = Array.isArray(o) ? [] : {};
+          for (key in o) {
+              v = o[key];
+              output[key] = (typeof v === "object") ? deepCopy(v) : v;
+          }
+          return output;
+      }
+
       if (attrs.clickActivation) {
         element[0].onclick = function(e){
-          if(!scope.searchParam){
-            setTimeout(function() {
-              scope.completing = true;
-              scope.$apply();
-            }, 200);
-          }
+            scope.clonedSuggestions = deepCopy(scope.suggestions);
+
+            if (!scope.searchParam
+                || (scope.searchParam.constructor === Object && !scope.searchParam.optionValue)) {
+                setTimeout(function() {
+                    scope.completing = true;
+                    scope.$apply();
+                }, 200);
+            }
         };
       }
 
@@ -245,7 +260,7 @@ app.directive('autocomplete', function() {
         <div class="autocomplete {{ attrs.class }} form-control" id="{{ attrs.id }}" style="width: 40%;">\
           <input\
             type="text"\
-            ng-model="searchParam"\
+            ng-model="searchParam.optionValue"\
             placeholder="{{ attrs.placeholder }}"\
             class="{{ attrs.inputclass }}"\
             style="width: 100%; height: 100%; border: none;" \
@@ -254,45 +269,15 @@ app.directive('autocomplete', function() {
             name="{{ attrs.name }}"\
             ng-required="{{ autocompleteRequired }}" />\
             <div style="height: 100%; width: 100%;">\
-          <ul ng-if="!noAutoSort && !property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
+          <ul ng-if="property" ng-show="completing && clonedSuggestions.length > 0">\
             <li\
               suggestion\
-              ng-repeat="suggestion in suggestions | filter:searchFilter | orderBy:\'toString()\' track by $index"\
-              index="{{ $index }}"\
-              val="{{ suggestion }}"\
-              ng-class="{ active: ($index === selectedIndex) }"\
-              ng-click="select(suggestion)"\
-              ng-bind-html="suggestion | highlight:searchParam"></li>\
-          </ul>\
-          <ul ng-if="noAutoSort  && !property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
-            <li\
-              suggestion\
-              ng-repeat="suggestion in suggestions | filter:searchFilter track by $index"\
-              index="{{ $index }}"\
-              val="{{ suggestion }}"\
-              ng-class="{ active: ($index === selectedIndex) }"\
-              ng-click="select(suggestion)"\
-              ng-bind-html="suggestion | highlight:searchParam"></li>\
-          </ul>\
-          <ul ng-if="!noAutoSort && property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
-            <li\
-              suggestion\
-              ng-repeat="suggestion in suggestions | filter:searchFilter | orderBy:\'toString()\' track by $index"\
+              ng-repeat="suggestion in clonedSuggestions | filter:searchFilter track by $index"\
               index="{{ $index }}"\
               val="{{ suggestion[property] }}"\
               ng-class="{ active: ($index === selectedIndex) }"\
-              ng-click="select(suggestion[property])"\
-              ng-bind-html="suggestion[property] | highlight:searchParam"></li>\
-          </ul>\
-          <ul ng-if="noAutoSort  && !property" ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
-            <li\
-              suggestion\
-              ng-repeat="suggestion in suggestions | filter:searchFilter track by $index"\
-              index="{{ $index }}"\
-              val="{{ suggestion[property] }}"\
-              ng-class="{ active: ($index === selectedIndex) }"\
-              ng-click="select(suggestion[property])"\
-              ng-bind-html="suggestion[property] | highlight:searchParam"></li>\
+              ng-click="select(suggestion)"\
+              ng-bind-html="suggestion[property] | highlight:searchParam[property]"></li>\
           </ul>\
           </div>\
         </div>'
