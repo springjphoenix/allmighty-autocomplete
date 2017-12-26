@@ -138,8 +138,13 @@ app.directive('autocomplete', function() {
 
       if (attrs.clickActivation) {
         element[0].onclick = function(e){
+            if (undefined != scope.searchParam && scope.searchParam.optionValue == '') {
+                scope.searchFilter = '';
+            }
+
             scope.clonedSuggestions = deepCopy(scope.suggestions);
 
+            console.log('scope', scope);
             if (!scope.searchParam
                 || (scope.searchParam.constructor === Object && !scope.searchParam.optionValue)) {
                 setTimeout(function() {
